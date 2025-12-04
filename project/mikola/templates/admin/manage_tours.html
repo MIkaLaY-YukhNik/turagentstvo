@@ -1,0 +1,37 @@
+{% extends 'base.html' %}
+{% block title %}Туры — Админ{% endblock %}
+{% block content %}
+<h1>Управление турами</h1>
+<a class="button" href="{{ url_for('admin.add_form') }}">Добавить тур</a>
+<table class="table">
+  <thead>
+    <tr>
+      <th>ID</th>
+      <th>Название</th>
+      <th>Локация</th>
+      <th>Цена</th>
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for tour in tours %}
+    <tr>
+      <td>{{ tour.id }}</td>
+      <td>{{ tour.title }}</td>
+      <td>{{ tour.city }}, {{ tour.country }}</td>
+      <td>{{ '%.0f'|format(tour.price) }}$</td>
+      <td>
+        <a class="button" href="{{ url_for('admin.edit_tour_form', tour_id=tour.id) }}">Редактировать</a>
+      </td>
+    </tr>
+    {% endfor %}
+  </tbody>
+{% endblock %}
+
+
+
+
+
+
+
+

@@ -1,0 +1,133 @@
+{% extends 'base.html' %}
+{% block title %}{{ tour.title }} — MikolaTravelHub{% endblock %}
+{% block content %}
+<article class="tour-detail">
+  <img class="hero-img" src="{{ tour.photo_url or 'https://images.unsplash.com/photo-1470229538611-16ba8c7ffbd7?q=80&w=1600' }}" alt="{{ tour.title }}" />
+  <h1>{{ tour.title }}</h1>
+  <p class="muted">{{ tour.city }}, {{ tour.country }} • {{ tour.venue or 'Площадка уточняется' }}</p>
+  <div class="tour-description">
+    <p>{{ (tour.description or '') | replace('\n\n', '</p><p>') | safe }}</p>
+  </div>
+
+  <section class="tour-meta">
+    <h2>Детали тура</h2>
+    <ul>
+      <li><strong>Площадка:</strong> {{ tour.venue or 'уточняется' }}</li>
+      <li><strong>Адрес:</strong> {{ tour.address or 'будет объявлен позже' }}</li>
+      <li>
+        <strong>Расписание:</strong>
+        {% if tour.start_date %}
+          {{ tour.start_date }}
+          {% if tour.start_time %} в {{ tour.start_time }}{% endif %}
+        {% else %}
+          объявляется дополнительно
+        {% endif %}
+        {% if tour.end_date and tour.end_date != tour.start_date %}
+          — {{ tour.end_date }}
+        {% endif %}
+      </li>
+      <li>
+        <strong>Стоимость:</strong>
+        {% if tour.min_price is not none and tour.max_price is not none and tour.min_price != tour.max_price %}
+          {{ '%.0f'|format(tour.min_price) }}–{{ '%.0f'|format(tour.max_price) }} {{ tour.currency or '$' }}
+        {% elif tour.min_price is not none %}
+          от {{ '%.0f'|format(tour.min_price) }} {{ tour.currency or '$' }}
+        {% elif tour.max_price is not none %}
+          {{ '%.0f'|format(tour.max_price) }} {{ tour.currency or '$' }}
+        {% else %}
+          уточняется
+        {% endif %}
+      </li>
+      {% if tour.categories %}
+      <li><strong>Категории:</strong> {{ tour.categories | join(', ') }}</li>
+      {% endif %}
+      {% if tour.ticket_url %}
+      <li><strong>Ticketmaster:</strong> <a href="{{ tour.ticket_url }}" target="_blank" rel="noopener">Официальная страница</a></li>
+      {% endif %}
+    </ul>
+  </section>
+
+  {% if weather %}
+  <div class="weather">
+    <span>Погода: {{ weather.temp }}°C, {{ weather.description }}</span>
+    {% if weather_ok is not none %}
+      <span class="badge {% if weather_ok %}ok{% else %}warn{% endif %}">
+        {% if weather_ok %}Подходит для 60+ восхождений{% else %}Предупреждение: неблагоприятно{% endif %}
+      </span>
+    {% endif %}
+  </div>
+  {% endif %}
+
+  <div class="map-wrap">
+    <iframe src="{{ map_url }}" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+  </div>
+
+  <form class="booking" method="post" action="{{ url_for('public.book_tour', tour_id=tour.id) }}">
+    <h3>Бронирование</h3>
+    
+    {% if session.user_id %}
+      <p class="booking-info">Вы вошли как {{ session.email }}</p>
+    {% else %}
+      <p class="booking-info">
+        <a href="{{ url_for('auth.login') }}">Войдите</a> или 
+        <a href="{{ url_for('auth.register') }}">зарегистрируйтесь</a> для бронирования
+      </p>
+    {% endif %}
+
+    <div class="form-group">
+      <label for="travel_date">Дата поездки *</label>
+      <input name="travel_date" id="travel_date" type="date" required min="{{ today }}" />
+    </div>
+
+    <div class="form-group">
+      <label for="passengers">Количество пассажиров *</label>
+      <input name="passengers" id="passengers" type="number" min="1" max="10" value="1" required />
+    </div>
+
+    <div class="booking-summary">
+      <p><strong>Цена за человека:</strong> {{ '%.0f'|format(tour.price) }} {{ tour.currency or '$' }}</p>
+      <p><strong>Общая стоимость:</strong> <span id="total-price">{{ '%.0f'|format(tour.price) }} {{ tour.currency or '$' }}</span></p>
+    </div>
+
+    <button class="button primary" type="submit" {% if not session.user_id %}onclick="return confirm('Вы будете перенаправлены на регистрацию для завершения бронирования')"{% endif %}>
+      {% if session.user_id %}Забронировать{% else %}Зарегистрироваться и забронировать{% endif %}
+    </button>
+  </form>
+</article>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  const passengersInput = document.getElementById('passengers');
+  const totalPriceSpan = document.getElementById('total-price');
+  const travelDateInput = document.getElementById('travel_date');
+  const tourPrice = {{ tour.price }};
+  const currency = "{{ tour.currency or '$' }}";
+  
+  function updateTotalPrice() {
+    const passengers = parseInt(passengersInput.value) || 1;
+    const total = tourPrice * passengers;
+    totalPriceSpan.textContent = total.toFixed(0) + ' ' + currency;
+  }
+  
+  function validateDate() {
+    const selectedDate = new Date(travelDateInput.value);
+    const today = new Date();
+    today.setHours(0, 0, 0, 0); // Reset time to start of day
+    
+    if (selectedDate < today) {
+      travelDateInput.setCustomValidity('Дата поездки не может быть в прошлом');
+      travelDateInput.reportValidity();
+    } else {
+      travelDateInput.setCustomValidity('');
+    }
+  }
+  
+  passengersInput.addEventListener('input', updateTotalPrice);
+  travelDateInput.addEventListener('change', validateDate);
+  
+  updateTotalPrice(); // Initial calculation
+  validateDate(); // Initial validation
+});
+</script>
+{% endblock %}
+

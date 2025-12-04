@@ -1,0 +1,89 @@
+{% extends 'base.html' %}
+{% block title %}Мои сообщения — MikolaTravelHub{% endblock %}
+{% block content %}
+<section class="my-feedback">
+  <h1>Мои сообщения</h1>
+  
+  <div class="feedback-actions">
+    <a href="{{ url_for('public.feedback_form') }}" class="button primary">Отправить новое сообщение</a>
+  </div>
+  
+  {% if feedback_list %}
+    <div class="feedback-list">
+      {% for feedback in feedback_list %}
+      <div class="feedback-card">
+        <div class="feedback-header">
+          <h3>{{ feedback.subject }}</h3>
+          <div class="feedback-meta">
+            <span class="feedback-id">#{{ feedback.id }}</span>
+            <span class="feedback-date">{{ feedback.created_at }}</span>
+          </div>
+        </div>
+        
+        <div class="feedback-info">
+          <div class="info-row">
+            <strong>Категория:</strong> 
+            <span class="category category-{{ feedback.category }}">
+              {% if feedback.category == 'general' %}Общие вопросы
+              {% elif feedback.category == 'booking' %}Бронирование
+              {% elif feedback.category == 'technical' %}Технические проблемы
+              {% elif feedback.category == 'complaint' %}Жалоба
+              {% elif feedback.category == 'suggestion' %}Предложение
+              {% endif %}
+            </span>
+          </div>
+          
+          <div class="info-row">
+            <strong>Приоритет:</strong> 
+            <span class="priority priority-{{ feedback.priority }}">
+              {% if feedback.priority == 'low' %}Низкий
+              {% elif feedback.priority == 'normal' %}Обычный
+              {% elif feedback.priority == 'high' %}Высокий
+              {% elif feedback.priority == 'urgent' %}Срочный
+              {% endif %}
+            </span>
+          </div>
+          
+          <div class="info-row">
+            <strong>Статус:</strong> 
+            <span class="status status-{{ feedback.status }}">
+              {% if feedback.status == 'new' %}Новое
+              {% elif feedback.status == 'in_progress' %}В работе
+              {% elif feedback.status == 'resolved' %}Решено
+              {% elif feedback.status == 'closed' %}Закрыто
+              {% endif %}
+            </span>
+          </div>
+        </div>
+        
+        <div class="feedback-message">
+          <h4>Ваше сообщение:</h4>
+          <p>{{ feedback.message }}</p>
+        </div>
+        
+        {% if feedback.admin_response %}
+        <div class="admin-response">
+          <h4>Ответ администратора:</h4>
+          <p>{{ feedback.admin_response }}</p>
+          {% if feedback.responded_at %}
+          <small class="response-date">Ответ дан: {{ feedback.responded_at }}</small>
+          {% endif %}
+        </div>
+        {% endif %}
+      </div>
+      {% endfor %}
+    </div>
+  {% else %}
+    <div class="no-feedback">
+      <p>У вас пока нет отправленных сообщений.</p>
+      <a href="{{ url_for('public.feedback_form') }}" class="button primary">Отправить первое сообщение</a>
+    </div>
+  {% endif %}
+</section>
+{% endblock %}
+
+
+
+
+
+

@@ -1,0 +1,87 @@
+{% extends 'base.html' %}
+{% block title %}Бронирование — MikolaTravelHub{% endblock %}
+{% block content %}
+<section class="booking-result">
+  <h1>Бронирование подтверждено!</h1>
+  
+  <div class="booking-details">
+    <h2>Детали бронирования</h2>
+    <div class="detail-row">
+      <strong>Номер бронирования:</strong> #{{ booking.id }}
+    </div>
+    <div class="detail-row">
+      <strong>Тур:</strong> {{ tour.title }}
+    </div>
+    <div class="detail-row">
+      <strong>Место:</strong> {{ tour.city }}, {{ tour.country }}
+    </div>
+    <div class="detail-row">
+      <strong>Дата поездки:</strong> {{ booking.travel_date }}
+    </div>
+    <div class="detail-row">
+      <strong>Количество пассажиров:</strong> {{ passengers }}
+    </div>
+    <div class="detail-row">
+      <strong>Общая стоимость:</strong> {{ '%.0f'|format(booking.total_price) }} {{ tour.currency or '$' }}
+    </div>
+    <div class="detail-row">
+      <strong>Статус:</strong> 
+      <span class="status status-{{ booking.status }}">
+        {% if booking.status == 'confirmed' %}Подтверждено{% endif %}
+      </span>
+    </div>
+  </div>
+
+  {% if user %}
+  <div class="user-details">
+    <h2>Контактная информация</h2>
+    <div class="detail-row">
+      <strong>Имя:</strong> {{ user.first_name }} {{ user.last_name }}
+    </div>
+    <div class="detail-row">
+      <strong>Email:</strong> {{ user.email }}
+    </div>
+    {% if user.phone %}
+    <div class="detail-row">
+      <strong>Телефон:</strong> {{ user.phone }}
+    </div>
+    {% endif %}
+  </div>
+  {% endif %}
+
+  <div class="booking-actions">
+    <a class="button primary" href="{{ url_for('public.home') }}">На главную</a>
+    {% if session.user_id %}
+    <a class="button secondary" href="{{ url_for('public.my_bookings') }}">Мои бронирования</a>
+    {% endif %}
+    
+    {% if session.user_id and booking.status == 'confirmed' %}
+      <form method="post" action="{{ url_for('public.cancel_booking', booking_id=booking.id) }}" 
+            style="display: inline-block;" 
+            onsubmit="return confirm('Вы уверены, что хотите отменить это бронирование? Это действие нельзя отменить.')">
+        <button type="submit" class="button danger" 
+                onclick="return checkCancellationDate('{{ booking.travel_date }}')">
+          Отменить бронирование
+        </button>
+      </form>
+    {% endif %}
+  </div>
+</section>
+
+<script>
+function checkCancellationDate(travelDate) {
+  const travelDateObj = new Date(travelDate);
+  const today = new Date();
+  const threeDaysFromNow = new Date(today);
+  threeDaysFromNow.setDate(today.getDate() + 3);
+  
+  if (travelDateObj <= threeDaysFromNow) {
+    alert('Бронирование нельзя отменить менее чем за 3 дня до поездки');
+    return false;
+  }
+  
+  return confirm('Вы уверены, что хотите отменить это бронирование? Это действие нельзя отменить.');
+}
+</script>
+{% endblock %}
+

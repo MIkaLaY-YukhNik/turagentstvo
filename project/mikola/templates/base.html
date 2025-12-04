@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{% block title %}MikolaTravelHub{% endblock %}</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+  </head>
+  <body>
+    <header class="topbar">
+      <a class="logo" href="{{ url_for('public.home') }}">MikolaTravelHub</a>
+      <nav class="nav">
+        <a href="{{ url_for('public.search') }}" class="nav-link">{{ t('search') }}</a>
+        {% if session.user_id %}
+          {% if session.role != 'admin' %}
+            <a href="{{ url_for('public.my_bookings') }}" class="nav-link">{{ t('my_bookings') }}</a>
+            <a href="{{ url_for('public.feedback_form') }}" class="nav-link">Обратная связь</a>
+            <div class="user-menu">
+              <span class="user-email">{{ session.email }}</span>
+              <a href="{{ url_for('auth.logout') }}" class="nav-link">{{ t('logout') }}</a>
+            </div>
+          {% endif %}
+        {% else %}
+          <a href="{{ url_for('auth.login') }}" class="nav-link">{{ t('login') }}</a>
+          <a href="{{ url_for('auth.register') }}" class="nav-link">{{ t('register') }}</a>
+        {% endif %}
+        {% if session.role == 'admin' %}
+          <div class="dropdown">
+            <a href="{{ url_for('admin.dashboard') }}" class="nav-link">{{ t('admin') }}</a>
+            <div class="dropdown-menu">
+              <a href="{{ url_for('admin.manage_tours') }}" class="nav-link">Туры</a>
+              <a href="{{ url_for('admin.all_bookings') }}" class="nav-link">Бронирования</a>
+              <a href="{{ url_for('admin.users_list') }}" class="nav-link">Пользователи</a>
+              <a href="{{ url_for('admin.feedback_management') }}" class="nav-link">Обратная связь</a>
+              <a href="{{ url_for('auth.logout') }}" class="nav-link">{{ t('logout') }}</a>
+            </div>
+          </div>
+        {% endif %}
+        
+        <!-- Language Selector -->
+        <div class="language-selector">
+          <span class="language-label">🌐</span>
+          <a href="{{ url_for('public.set_language', language='ru') }}" 
+             class="nav-link {% if session.language == 'ru' or not session.language %}active{% endif %}">RU</a>
+          <a href="{{ url_for('public.set_language', language='en') }}" 
+             class="nav-link {% if session.language == 'en' %}active{% endif %}">EN</a>
+          <a href="{{ url_for('public.set_language', language='es') }}" 
+             class="nav-link {% if session.language == 'es' %}active{% endif %}">ES</a>
+        </div>
+      </nav>
+    </header>
+    <main class="container">
+      {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+          <div class="flash-messages">
+            {% for category, message in messages %}
+              <div class="flash flash-{{ category }}">{{ message }}</div>
+            {% endfor %}
+          </div>
+        {% endif %}
+      {% endwith %}
+      {% block content %}{% endblock %}
+    </main>
+    <footer class="footer">© {{ 2025 }} MikolaTravelHub</footer>
+  </body>
+  </html>
+

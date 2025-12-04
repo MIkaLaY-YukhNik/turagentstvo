@@ -1,0 +1,33 @@
+{% extends 'base.html' %}
+{% block title %}Админ — MikolaTravelHub{% endblock %}
+{% block content %}
+<h1>Админ-панель</h1>
+<nav class="admin-actions">
+  <a class="button" href="{{ url_for('admin.manage_tours') }}">Управление турами</a>
+  <a class="button" href="{{ url_for('admin.add_form') }}">Добавить тур</a>
+  <a class="button" href="{{ url_for('admin.all_bookings') }}">Бронирования</a>
+  <a class="button" href="{{ url_for('admin.users_list') }}">Пользователи</a>
+  <a class="button" href="{{ url_for('admin.feedback_management') }}">Обратная связь</a>
+</nav>
+
+{% if bookings_count is defined %}
+<section class="stats">
+  <div class="stat">Бронирований: <strong>{{ bookings_count }}</strong></div>
+  <div class="stat">Пользователей: <strong>{{ users_count }}</strong></div>
+  <div class="stat">Сообщений: <strong>{{ feedback_count }}</strong></div>
+</section>
+{% endif %}
+<section class="grid">
+  {% for tour in tours %}
+  <article class="card">
+    <img src="{{ tour.photo_url or 'https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?q=80&w=1200' }}" alt="{{ tour.title }}" />
+    <div class="card-body">
+      <h3>{{ tour.title }}</h3>
+      <p>{{ tour.city }}, {{ tour.country }}</p>
+      <p class="price">{{ '%.0f'|format(tour.price) }}$</p>
+    </div>
+  </article>
+  {% endfor %}
+</section>
+{% endblock %}
+

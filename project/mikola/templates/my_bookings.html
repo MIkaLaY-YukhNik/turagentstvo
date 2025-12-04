@@ -1,0 +1,84 @@
+{% extends 'base.html' %}
+{% block title %}{{ t('my_bookings_title') }} — MikolaTravelHub{% endblock %}
+{% block content %}
+<section class="my-bookings">
+  <h1>{{ t('my_bookings_title') }}</h1>
+  
+  {% if bookings %}
+    <div class="bookings-list">
+      {% for item in bookings %}
+      <div class="booking-card">
+        <div class="booking-header">
+          <h3>{{ item.tour.title }}</h3>
+          <span class="booking-id">#{{ item.booking.id }}</span>
+        </div>
+        
+        <div class="booking-info">
+          <div class="info-row">
+            <strong>{{ t('place') }}:</strong> {{ item.tour.city }}, {{ item.tour.country }}
+          </div>
+          <div class="info-row">
+            <strong>{{ t('travel_date') }}:</strong> {{ item.booking.travel_date }}
+          </div>
+          <div class="info-row">
+            <strong>{{ t('booking_date') }}:</strong> {{ item.booking.booking_date }}
+          </div>
+          <div class="info-row">
+            <strong>{{ t('min_passengers') }}:</strong> {{ item.booking.passengers }}
+          </div>
+          <div class="info-row">
+            <strong>{{ t('total_cost') }}:</strong> {{ '%.0f'|format(item.booking.total_price) }}$
+          </div>
+          <div class="info-row">
+            <strong>{{ t('status') }}:</strong> 
+            <span class="status status-{{ item.booking.status }}">
+              {% if item.booking.status == 'confirmed' %}{{ t('confirmed') }}{% endif %}
+              {% if item.booking.status == 'pending' %}{{ t('pending') }}{% endif %}
+              {% if item.booking.status == 'cancelled' %}{{ t('cancelled') }}{% endif %}
+            </span>
+          </div>
+        </div>
+        
+        <div class="booking-actions">
+          <a href="{{ url_for('public.tour_detail', tour_id=item.tour.id) }}" class="button secondary">
+            {{ t('view_tour') }}
+          </a>
+          
+          {% if item.booking.status == 'confirmed' %}
+            <form method="post" action="{{ url_for('public.cancel_booking', booking_id=item.booking.id) }}" 
+                  style="display: inline-block;" 
+                  onsubmit="return confirm('Вы уверены, что хотите отменить это бронирование? Это действие нельзя отменить.')">
+              <button type="submit" class="button danger" 
+                      onclick="return checkCancellationDate('{{ item.booking.travel_date }}')">
+                {{ t('cancel') }}
+              </button>
+            </form>
+          {% endif %}
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+  {% else %}
+    <div class="no-bookings">
+      <p>{{ t('no_bookings') }}</p>
+      <a href="{{ url_for('public.home') }}" class="button primary">{{ t('view_tours') }}</a>
+    </div>
+  {% endif %}
+</section>
+
+<script>
+function checkCancellationDate(travelDate) {
+  const travelDateObj = new Date(travelDate);
+  const today = new Date();
+  const threeDaysFromNow = new Date(today);
+  threeDaysFromNow.setDate(today.getDate() + 3);
+  
+  if (travelDateObj <= threeDaysFromNow) {
+    alert('Бронирование нельзя отменить менее чем за 3 дня до поездки');
+    return false;
+  }
+  
+  return confirm('Вы уверены, что хотите отменить это бронирование? Это действие нельзя отменить.');
+}
+</script>
+{% endblock %}

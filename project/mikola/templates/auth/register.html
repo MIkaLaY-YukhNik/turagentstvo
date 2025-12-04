@@ -1,0 +1,65 @@
+{% extends 'base.html' %}
+{% block title %}Регистрация — MikolaTravelHub{% endblock %}
+{% block content %}
+<section class="auth-form">
+  <h1>Регистрация</h1>
+  
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+      {% for category, message in messages %}
+        <div class="alert alert-{{ category }}">{{ message }}</div>
+      {% endfor %}
+    {% endif %}
+  {% endwith %}
+
+  <form method="post" action="{{ url_for('auth.register_post') }}">
+    {% if session.booking_data %}
+    <div class="booking-notice">
+      <p><strong>Завершение бронирования:</strong> {{ session.booking_data.tour_title or 'Выбранный тур' }}</p>
+    </div>
+    {% endif %}
+
+    <div class="form-group">
+      <label for="email">Email *</label>
+      <input type="email" id="email" name="email" required placeholder="your@email.com" />
+    </div>
+
+    <div class="form-row">
+      <div class="form-group">
+        <label for="first_name">Имя *</label>
+        <input type="text" id="first_name" name="first_name" required placeholder="Иван" 
+               value="{{ session.booking_data.first_name if session.booking_data else '' }}" />
+      </div>
+      <div class="form-group">
+        <label for="last_name">Фамилия *</label>
+        <input type="text" id="last_name" name="last_name" required placeholder="Иванов" 
+               value="{{ session.booking_data.last_name if session.booking_data else '' }}" />
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label for="phone">Телефон</label>
+      <input type="tel" id="phone" name="phone" placeholder="+7 (999) 123-45-67" 
+             value="{{ session.booking_data.phone if session.booking_data else '' }}" />
+    </div>
+
+    
+
+    <div class="form-group">
+      <label for="password">Пароль *</label>
+      <input type="password" id="password" name="password" required placeholder="Минимум 6 символов" minlength="6" />
+    </div>
+
+    <div class="form-group">
+      <label for="confirm_password">Подтвердите пароль *</label>
+      <input type="password" id="confirm_password" name="confirm_password" required placeholder="Повторите пароль" minlength="6" />
+    </div>
+
+    <button type="submit" class="button primary">Зарегистрироваться</button>
+  </form>
+
+  <p class="auth-link">
+    Уже есть аккаунт? <a href="{{ url_for('auth.login') }}">Войти</a>
+  </p>
+</section>
+{% endblock %}

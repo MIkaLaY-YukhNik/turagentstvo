@@ -1,0 +1,65 @@
+{% extends 'base.html' %}
+{% block title %}Вход — MikolaTravelHub{% endblock %}
+{% block content %}
+{% if admin_mode %}
+<section class="auth-form admin-auth">
+  <div class="auth-left">
+    <h1>Админ-панель</h1>
+    <p class="muted">Войдите как администратор, чтобы управлять системой.</p>
+    <ul class="muted">
+      <li>Просмотр бронирований</li>
+      <li>Управление турами и пользователями</li>
+      <li>Обработка обратной связи</li>
+    </ul>
+  </div>
+  <div class="auth-right">
+    <h1>Вход администратора</h1>
+{% else %}
+<section class="auth-form">
+  <h1>Вход в систему</h1>
+{% endif %}
+  
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+      {% for category, message in messages %}
+        <div class="alert alert-{{ category }}">{{ message }}</div>
+      {% endfor %}
+    {% endif %}
+  {% endwith %}
+
+  <form method="post" action="{{ url_for('auth.login_post') }}">
+    {% if admin_mode %}
+    <input type="hidden" name="admin" value="1" />
+    {% endif %}
+    <div class="form-group">
+      <label for="email">Email</label>
+      <input type="email" id="email" name="email" required placeholder="your@email.com" />
+    </div>
+
+    <div class="form-group">
+      <label for="password">Пароль</label>
+      <input type="password" id="password" name="password" required placeholder="Ваш пароль" />
+    </div>
+
+    <button type="submit" class="button primary">Войти</button>
+  </form>
+
+  <p class="auth-link">
+    Нет аккаунта? <a href="{{ url_for('auth.register') }}">Зарегистрироваться</a>
+  </p>
+
+  {% if not admin_mode %}
+    <div class="demo-info">
+      <p class="muted">Демо-доступ администратора:</p>
+      <p class="muted">Email: admin@mikola.com</p>
+      <p class="muted">Пароль: admin123</p>
+    </div>
+  {% endif %}
+{% if admin_mode %}
+  </div>
+</section>
+{% else %}
+</section>
+{% endif %}
+{% endblock %}
+

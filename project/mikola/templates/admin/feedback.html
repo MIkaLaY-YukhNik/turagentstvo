@@ -1,0 +1,116 @@
+{% extends 'base.html' %}
+{% block title %}Управление обратной связью — MikolaTravelHub{% endblock %}
+{% block content %}
+<section class="admin-feedback">
+  <h1>Управление обратной связью</h1>
+  
+  <!-- Statistics -->
+  <div class="feedback-stats">
+    <div class="stat-card">
+      <h3>{{ stats.total }}</h3>
+      <p>Всего сообщений</p>
+    </div>
+    <div class="stat-card urgent">
+      <h3>{{ stats.urgent }}</h3>
+      <p>Срочных</p>
+    </div>
+    <div class="stat-card new">
+      <h3>{{ stats.new }}</h3>
+      <p>Новых</p>
+    </div>
+    <div class="stat-card resolved">
+      <h3>{{ stats.resolved }}</h3>
+      <p>Решенных</p>
+    </div>
+  </div>
+  
+  <!-- Feedback List -->
+  <div class="feedback-list">
+    {% for feedback in feedback_list %}
+    <div class="feedback-card priority-{{ feedback.priority }}">
+      <div class="feedback-header">
+        <h3>{{ feedback.subject }}</h3>
+        <div class="feedback-meta">
+          <span class="feedback-id">#{{ feedback.id }}</span>
+          <span class="feedback-date">{{ feedback.created_at }}</span>
+        </div>
+      </div>
+      
+      <div class="feedback-info">
+        <div class="info-row">
+          <strong>Пользователь:</strong> 
+          <span>ID: {{ feedback.user_id }}</span>
+        </div>
+        
+        <div class="info-row">
+          <strong>Категория:</strong> 
+          <span class="category category-{{ feedback.category }}">
+            {% if feedback.category == 'general' %}Общие вопросы
+            {% elif feedback.category == 'booking' %}Бронирование
+            {% elif feedback.category == 'technical' %}Технические проблемы
+            {% elif feedback.category == 'complaint' %}Жалоба
+            {% elif feedback.category == 'suggestion' %}Предложение
+            {% endif %}
+          </span>
+        </div>
+        
+        <div class="info-row">
+          <strong>Приоритет:</strong> 
+          <span class="priority priority-{{ feedback.priority }}">
+            {% if feedback.priority == 'low' %}Низкий
+            {% elif feedback.priority == 'normal' %}Обычный
+            {% elif feedback.priority == 'high' %}Высокий
+            {% elif feedback.priority == 'urgent' %}Срочный
+            {% endif %}
+          </span>
+        </div>
+        
+        <div class="info-row">
+          <strong>Статус:</strong> 
+          <span class="status status-{{ feedback.status }}">
+            {% if feedback.status == 'new' %}Новое
+            {% elif feedback.status == 'in_progress' %}В работе
+            {% elif feedback.status == 'resolved' %}Решено
+            {% elif feedback.status == 'closed' %}Закрыто
+            {% endif %}
+          </span>
+        </div>
+      </div>
+      
+      <div class="feedback-message">
+        <h4>Сообщение пользователя:</h4>
+        <p>{{ feedback.message }}</p>
+      </div>
+      
+      {% if feedback.admin_response %}
+      <div class="admin-response">
+        <h4>Ответ администратора:</h4>
+        <p>{{ feedback.admin_response }}</p>
+        {% if feedback.responded_at %}
+        <small class="response-date">Ответ дан: {{ feedback.responded_at }}</small>
+        {% endif %}
+      </div>
+      {% endif %}
+      
+      <div class="feedback-actions">
+        <a href="{{ url_for('admin.view_feedback', feedback_id=feedback.id) }}" class="button primary">
+          {% if feedback.admin_response %}Просмотреть{% else %}Ответить{% endif %}
+        </a>
+      </div>
+    </div>
+    {% endfor %}
+    
+    {% if not feedback_list %}
+    <div class="no-feedback">
+      <p>Нет сообщений от пользователей.</p>
+    </div>
+    {% endif %}
+  </div>
+</section>
+{% endblock %}
+
+
+
+
+
+

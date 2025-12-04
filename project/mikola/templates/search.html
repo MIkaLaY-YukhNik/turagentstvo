@@ -1,0 +1,56 @@
+{% extends 'base.html' %}
+{% block title %}{{ t('search_title') }} — MikolaTravelHub{% endblock %}
+{% block content %}
+<form class="filters" method="get">
+  <input type="text" name="keyword" placeholder="{{ t('search_title') }} (Coldplay, U2...)" value="{{ query.keyword }}" />
+  <input type="text" name="location" placeholder="{{ t('location') }}" value="{{ query.location }}" />
+  <select name="type">
+    <option value="">{{ t('type') }}</option>
+    <option value="city" {% if query.type=='city' %}selected{% endif %}>{{ t('city') }}</option>
+    <option value="mountain" {% if query.type=='mountain' %}selected{% endif %}>{{ t('mountain') }}</option>
+    <option value="elderly_mountain" {% if query.type=='elderly_mountain' %}selected{% endif %}>{{ t('elderly_mountain') }}</option>
+    <option value="group" {% if query.type=='group' %}selected{% endif %}>{{ t('group') }}</option>
+  </select>
+  <input type="number" name="min_price" placeholder="{{ t('min_price') }}" value="{{ query.min_price or '' }}" />
+  <input type="number" name="max_price" placeholder="{{ t('max_price') }}" value="{{ query.max_price or '' }}" />
+  <input type="number" name="duration" placeholder="{{ t('duration') }}" value="{{ query.duration or '' }}" />
+  <button class="button primary" type="submit">{{ t('search_button') }}</button>
+  <a class="button ghost" href="{{ url_for('public.search') }}">{{ t('reset') }}</a>
+  <a class="button" href="{{ url_for('public.home') }}">{{ t('home') }}</a>
+  </form>
+
+<section class="grid">
+  {% for tour in tours %}
+  <article class="card">
+    <img src="{{ tour.photo_url or 'https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?q=80&w=1200' }}" alt="{{ tour.title }}" />
+    <div class="card-body">
+      <h3>{{ tour.title }}</h3>
+      <p>{{ tour.city }}, {{ tour.country }} • {{ tour.venue or 'Площадка уточняется' }}</p>
+      <p class="muted">
+        {% if tour.start_date %}{{ tour.start_date }}{% endif %}
+        {% if tour.start_time %} • {{ tour.start_time }}{% endif %}
+      </p>
+      <p class="price">
+        {% if tour.min_price is not none and tour.max_price is not none and tour.min_price != tour.max_price %}
+          {{ '%.0f'|format(tour.min_price) }}–{{ '%.0f'|format(tour.max_price) }} {{ tour.currency or '$' }}
+        {% elif tour.min_price is not none %}
+          {{ '%.0f'|format(tour.min_price) }} {{ tour.currency or '$' }}
+        {% elif tour.max_price is not none %}
+          {{ '%.0f'|format(tour.max_price) }} {{ tour.currency or '$' }}
+        {% else %}
+          Стоимость уточняется
+        {% endif %}
+      </p>
+      {% if tour.categories %}
+        <p class="muted">Категории: {{ tour.categories | join(', ') }}</p>
+      {% endif %}
+      <a class="button primary" href="{{ url_for('public.tour_detail', tour_id=tour.id) }}">Подробнее</a>
+    </div>
+  </article>
+  {% endfor %}
+  {% if not tours %}
+  <p>{{ t('nothing_found') }}</p>
+  {% endif %}
+</section>
+{% endblock %}
+

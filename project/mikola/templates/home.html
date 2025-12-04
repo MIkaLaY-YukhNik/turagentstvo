@@ -1,0 +1,40 @@
+{% extends 'base.html' %}
+{% block title %}Главная — MikolaTravelHub{% endblock %}
+{% block content %}
+<section class="hero">
+  <h1 class="title">Найдите свой тур</h1>
+  <p class="subtitle">Особое внимание — безопасные горные группы 60+</p>
+</section>
+
+<section class="grid">
+  {% for t in tours %}
+  <article class="card">
+    <img src="{{ t.photo_url or 'https://images.unsplash.com/photo-1470229538611-16ba8c7ffbd7?q=80&w=1600' }}" alt="{{ t.title }}" />
+    <div class="card-body">
+      <h3>{{ t.title }}</h3>
+      <p>{{ t.city }}, {{ t.country }} • {{ t.venue or 'Место уточняется' }}</p>
+      <p class="muted">
+        {% if t.start_date %}{{ t.start_date }}{% endif %}
+        {% if t.start_time %} • {{ t.start_time }}{% endif %}
+      </p>
+      <p class="price">
+        {% if t.min_price is not none and t.max_price is not none and t.min_price != t.max_price %}
+          {{ '%.0f'|format(t.min_price) }}–{{ '%.0f'|format(t.max_price) }} {{ t.currency or '$' }}
+        {% elif t.min_price is not none %}
+          {{ '%.0f'|format(t.min_price) }} {{ t.currency or '$' }}
+        {% elif t.max_price is not none %}
+          {{ '%.0f'|format(t.max_price) }} {{ t.currency or '$' }}
+        {% else %}
+          Стоимость уточняется
+        {% endif %}
+      </p>
+      <a class="button primary" href="{{ url_for('public.tour_detail', tour_id=t.id) }}">Подробнее</a>
+    </div>
+  </article>
+  {% endfor %}
+  {% if not tours %}
+  <p>Нет предложений</p>
+  {% endif %}
+</section>
+{% endblock %}
+

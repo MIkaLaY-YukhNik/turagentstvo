@@ -1,0 +1,130 @@
+{% extends 'base.html' %}
+{% block title %}Сообщение #{{ feedback.id }} — MikolaTravelHub{% endblock %}
+{% block content %}
+<section class="view-feedback">
+  <h1>Сообщение #{{ feedback.id }}</h1>
+  
+  <div class="feedback-details">
+    <div class="feedback-header">
+      <h2>{{ feedback.subject }}</h2>
+      <div class="feedback-meta">
+        <span class="feedback-date">{{ feedback.created_at }}</span>
+        <span class="feedback-id">#{{ feedback.id }}</span>
+      </div>
+    </div>
+    
+    <div class="feedback-info">
+      <div class="info-row">
+        <strong>Пользователь:</strong> 
+        <span>{{ user.first_name }} {{ user.last_name }} ({{ user.email }})</span>
+      </div>
+      
+      <div class="info-row">
+        <strong>Категория:</strong> 
+        <span class="category category-{{ feedback.category }}">
+          {% if feedback.category == 'general' %}Общие вопросы
+          {% elif feedback.category == 'booking' %}Бронирование
+          {% elif feedback.category == 'technical' %}Технические проблемы
+          {% elif feedback.category == 'complaint' %}Жалоба
+          {% elif feedback.category == 'suggestion' %}Предложение
+          {% endif %}
+        </span>
+      </div>
+      
+      <div class="info-row">
+        <strong>Приоритет:</strong> 
+        <span class="priority priority-{{ feedback.priority }}">
+          {% if feedback.priority == 'low' %}Низкий
+          {% elif feedback.priority == 'normal' %}Обычный
+          {% elif feedback.priority == 'high' %}Высокий
+          {% elif feedback.priority == 'urgent' %}Срочный
+          {% endif %}
+        </span>
+      </div>
+      
+      <div class="info-row">
+        <strong>Статус:</strong> 
+        <span class="status status-{{ feedback.status }}">
+          {% if feedback.status == 'new' %}Новое
+          {% elif feedback.status == 'in_progress' %}В работе
+          {% elif feedback.status == 'resolved' %}Решено
+          {% elif feedback.status == 'closed' %}Закрыто
+          {% endif %}
+        </span>
+      </div>
+    </div>
+    
+    <div class="feedback-message">
+      <h3>Сообщение пользователя:</h3>
+      <div class="message-content">{{ feedback.message }}</div>
+    </div>
+    
+    {% if feedback.admin_response %}
+    <div class="admin-response">
+      <h3>Ответ администратора:</h3>
+      <div class="response-content">{{ feedback.admin_response }}</div>
+      {% if feedback.responded_at %}
+      <small class="response-date">Ответ дан: {{ feedback.responded_at }}</small>
+      {% endif %}
+    </div>
+    {% endif %}
+  </div>
+  
+  <!-- Admin Actions -->
+  <div class="admin-actions">
+    <h3>Действия администратора</h3>
+    
+    <!-- Respond to feedback -->
+    {% if not feedback.admin_response %}
+    <form method="post" action="{{ url_for('admin.respond_to_feedback', feedback_id=feedback.id) }}" class="action-form">
+      <div class="form-group">
+        <label for="admin_response">Ответ пользователю *</label>
+        <textarea id="admin_response" name="admin_response" required 
+                  placeholder="Напишите ответ пользователю" 
+                  rows="4" maxlength="2000"></textarea>
+        <small class="form-help">Максимум 2000 символов</small>
+      </div>
+      <button type="submit" class="button primary">Отправить ответ</button>
+    </form>
+    {% endif %}
+    
+    <!-- Change status -->
+    <form method="post" action="{{ url_for('admin.change_feedback_status', feedback_id=feedback.id) }}" class="action-form">
+      <div class="form-group">
+        <label for="status">Изменить статус</label>
+        <select id="status" name="status">
+          <option value="new" {% if feedback.status == 'new' %}selected{% endif %}>Новое</option>
+          <option value="in_progress" {% if feedback.status == 'in_progress' %}selected{% endif %}>В работе</option>
+          <option value="resolved" {% if feedback.status == 'resolved' %}selected{% endif %}>Решено</option>
+          <option value="closed" {% if feedback.status == 'closed' %}selected{% endif %}>Закрыто</option>
+        </select>
+      </div>
+      <button type="submit" class="button secondary">Обновить статус</button>
+    </form>
+    
+    <!-- Change priority -->
+    <form method="post" action="{{ url_for('admin.change_feedback_priority', feedback_id=feedback.id) }}" class="action-form">
+      <div class="form-group">
+        <label for="priority">Изменить приоритет</label>
+        <select id="priority" name="priority">
+          <option value="low" {% if feedback.priority == 'low' %}selected{% endif %}>Низкий</option>
+          <option value="normal" {% if feedback.priority == 'normal' %}selected{% endif %}>Обычный</option>
+          <option value="high" {% if feedback.priority == 'high' %}selected{% endif %}>Высокий</option>
+          <option value="urgent" {% if feedback.priority == 'urgent' %}selected{% endif %}>Срочный</option>
+        </select>
+      </div>
+      <button type="submit" class="button secondary">Обновить приоритет</button>
+    </form>
+  </div>
+  
+  <div class="navigation-actions">
+    <a href="{{ url_for('admin.feedback_management') }}" class="button">← Назад к списку</a>
+  </div>
+</section>
+{% endblock %}
+
+
+
+
+
+
