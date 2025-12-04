@@ -61,6 +61,7 @@ mikola_travel_hub/
 ├── requirements.txt
 └── run.py                       # точка входа```
 
+
 📦 Как запустить проект
 # 1. Клонировать
 git clone https://github.com/MIkaLaY-YukhNik/mikola-travel-hub.git
