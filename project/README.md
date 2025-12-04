@@ -46,7 +46,8 @@ mikola_travel_hub/
 │   ├── templates/               # все Jinja2-шаблоны
 │   ├── static/
 │   │   ├── css/
-│   │   ├── img/tours/           # фото туров
+│   │   ├── img/
+│   │   │   └── tours/           # фото туров
 │   │   └── favicon.ico
 │   └── blueprints/
 │       ├── public_bp.py         # главная, поиск, tour/id, book/id, set_language
@@ -57,9 +58,9 @@ mikola_travel_hub/
 ├── docs/
 │   ├── images/                  # диаграммы, скриншоты
 │   └── README.md
-├── .env                # SECRET_KEY, OPENWEATHER_API_KEY,GOOGLE_MAPS_KEY
+├── .env                         # SECRET_KEY, OPENWEATHER_API_KEY, GOOGLE_MAPS_KEY
 ├── requirements.txt
-└── run.py                       # точка входа```
+└── run.py                       # точка входа
 
 
 📦 Как запустить проект
